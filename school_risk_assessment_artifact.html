@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ประเมินกลุ่มสีโรงเรียนขนาดเล็ก | สพป.พล.3</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -89,6 +90,26 @@ table.main tr:hover td{background:#FCFAF5;}
 .ov-bar-row{display:grid;grid-template-columns:110px 1fr 38px;align-items:center;gap:6px;margin-bottom:7px;font-size:12px;}
 .watch-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#FCFAF5;border:1px solid var(--paper-line);border-left:4px solid var(--red);border-radius:3px;margin-bottom:6px;}
 .wn{font-weight:600;font-size:13px;}.wd{color:var(--ink-soft);font-size:11.5px;}
+
+@media print {
+  body { background: #fff !important; }
+  .wrap { padding: 0 !important; max-width: 100% !important; }
+  .tabs, .form-grid > div:first-child, #viewList, #viewOv, .save-row, header .meta-right { display: none !important; }
+  .form-grid { display: block !important; }
+  .panel { border: none !important; padding: 0 !important; box-shadow: none !important; }
+  #print-report { display: block !important; }
+  #resultFull { display: block !important; }
+}
+#print-report { display: none; }
+.report-header { border-bottom: 3px solid #26303A; padding-bottom: 14px; margin-bottom: 20px; }
+.report-title { font-family: 'Kanit', sans-serif; font-size: 20px; font-weight: 700; }
+.report-sub { font-size: 13px; color: #5B6470; margin-top: 4px; }
+.report-section { margin-bottom: 18px; }
+.report-section-title { font-family: 'Kanit', sans-serif; font-size: 13px; font-weight: 600; color: #5B6470; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; border-bottom: 1px solid #E3D9C4; padding-bottom: 5px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+.info-item { display: flex; gap: 6px; }
+.info-label { color: #5B6470; min-width: 90px; }
+.info-value { font-weight: 600; }
 </style>
 </head>
 <body>
@@ -157,7 +178,7 @@ table.main tr:hover td{background:#FCFAF5;}
       <div class="bs-title">เปรียบเทียบ vs เกณฑ์</div>
       <div id="bars" style="margin-bottom:14px"></div>
       <div class="reco-box" id="recoBox"></div>
-      <div class="save-row"><span class="save-msg" id="saveMsg"></span><button class="primary" id="saveBtn" disabled>บันทึกข้อมูลนี้</button></div>
+      <div class="save-row"><span class="save-msg" id="saveMsg"></span><button class="primary" id="exportBtn" disabled style="background:var(--slate)">📄 Export รายงาน PDF</button><button class="primary" id="saveBtn" disabled>บันทึกข้อมูลนี้</button></div>
     </div>
   </div>
 </div>
@@ -166,7 +187,7 @@ table.main tr:hover td{background:#FCFAF5;}
 
 <!-- LIST -->
 <div id="viewList" class="panel" style="display:none;">
-  <div class="panel-title"><span class="num">≡</span>รายการโรงเรียนทั้งหมด</div>
+  <div class="panel-title" style="justify-content:space-between"><span style="display:flex;align-items:center;gap:8px"><span class="num">≡</span>รายการโรงเรียนทั้งหมด</span><button class="primary" id="xlsxBtn" style="font-size:12px;padding:6px 14px;background:var(--green)">📊 Export Excel</button></div>
   <div class="summary-bar" id="summaryBar"></div>
   <div class="table-wrap"><table class="main"><thead><tr><th>โรงเรียน</th><th>อำเภอ</th><th>นักเรียน</th><th>ครู</th><th>RT</th><th>NT</th><th>O-NET</th><th>กลุ่มสี</th><th>วันที่</th><th></th></tr></thead><tbody id="entriesBody"></tbody></table></div>
   <div id="listEmpty" class="empty-state" style="display:none;">ยังไม่มีข้อมูล</div>
@@ -176,6 +197,38 @@ table.main tr:hover td{background:#FCFAF5;}
 <div id="viewOv" class="panel" style="display:none;">
   <div class="panel-title"><span class="num">◎</span>ภาพรวมทั้งเขต</div>
   <div id="ovBody"></div>
+</div>
+
+<!-- PRINT REPORT -->
+<div id="print-report">
+  <div class="report-header">
+    <div class="report-title" id="rpt-title">รายงานการประเมินกลุ่มสีโรงเรียนขนาดเล็ก</div>
+    <div class="report-sub">สำนักงานเขตพื้นที่การศึกษาประถมศึกษาพิษณุโลก เขต 3</div>
+    <div class="report-sub" id="rpt-date"></div>
+  </div>
+  <div class="report-section">
+    <div class="report-section-title">ข้อมูลโรงเรียน</div>
+    <div class="info-grid" id="rpt-info"></div>
+  </div>
+  <div class="report-section">
+    <div class="report-section-title">ผลการประเมินกลุ่มสี</div>
+    <div id="rpt-color" style="padding:14px 18px;border-radius:6px;margin-bottom:12px;"></div>
+  </div>
+  <div class="report-section">
+    <div class="report-section-title">รายละเอียดผลการประเมิน</div>
+    <table class="checklist" id="rpt-checklist"></table>
+  </div>
+  <div class="report-section">
+    <div class="report-section-title">เปรียบเทียบผลสัมฤทธิ์ vs เกณฑ์มาตรฐาน</div>
+    <div id="rpt-bars"></div>
+  </div>
+  <div class="report-section">
+    <div class="report-section-title">คำแนะนำ</div>
+    <div class="reco-box" id="rpt-reco"></div>
+  </div>
+  <div style="margin-top:30px;font-size:11px;color:#9aa0a8;text-align:center;border-top:1px solid #E3D9C4;padding-top:10px;">
+    รายงานนี้สร้างอัตโนมัติจากระบบประเมินกลุ่มสีโรงเรียนขนาดเล็ก สพป.พล.3
+  </div>
 </div>
 
 </div>
@@ -226,7 +279,7 @@ function compute(){
   const hasAny=rt!==null||nt!==null||on!==null;
   if(!hasCore||!hasAny){
     $('resultEmpty').style.display='block';$('resultFull').style.display='none';
-    $('saveBtn').disabled=true;cur=null;return;
+    $('saveBtn').disabled=true;$('exportBtn').disabled=true;cur=null;return;
   }
 
   const rd=calcReqDir(sc);
@@ -251,7 +304,7 @@ function compute(){
 
   cur={school_name:gS('school_name')||'(ไม่ระบุ)',school_code:gS('school_code'),district:gS('district'),school_type:gS('school_type'),data_date:gS('data_date'),student_count:sc,classroom_count:cl,rt_score:rt,rt_standard:rtS,nt_score:nt,nt_standard:ntS,onet_score:on,onet_standard:onS,director_actual:da,teacher_actual:ta,required_director:rd,required_teacher:cl,rt_pass:rtp,nt_pass:ntp,onet_pass:onp,staff_complete:staff_ok,color_group:color,count_pass:cnt,total_tests:tot,has_dir,full_t};
   renderResult(cur);
-  $('saveBtn').disabled=false;
+  $('saveBtn').disabled=false;$('exportBtn').disabled=false;
 }
 
 function renderResult(r){
@@ -303,7 +356,7 @@ async function saveEntry(){
     setTimeout(()=>{$('saveMsg').textContent='';},2500);
     await loadEntries();
   }catch(e){$('saveMsg').textContent='บันทึกไม่สำเร็จ';}
-  finally{$('saveBtn').disabled=!cur;}
+  finally{$('saveBtn').disabled=!cur;$('exportBtn').disabled=!cur;}
 }
 $('saveBtn').addEventListener('click',saveEntry);
 
@@ -359,6 +412,95 @@ function setTab(t){
 $('tabForm').addEventListener('click',()=>setTab('tabForm'));
 $('tabList').addEventListener('click',()=>setTab('tabList'));
 $('tabOv').addEventListener('click',()=>setTab('tabOv'));
+
+function exportPDF(){
+  if(!cur) return;
+  const c = COLORS[cur.color_group];
+  // Fill report
+  $('rpt-title').textContent = 'รายงานการประเมินกลุ่มสี — ' + cur.school_name;
+  $('rpt-date').textContent = 'วันที่ประเมิน: ' + (cur.data_date || new Date().toLocaleDateString('th-TH'));
+  $('rpt-info').innerHTML = [
+    ['ชื่อโรงเรียน', cur.school_name],
+    ['รหัสโรงเรียน', cur.school_code || '-'],
+    ['อำเภอ', cur.district || '-'],
+    ['ประเภท', cur.school_type || '-'],
+    ['นักเรียน', cur.student_count + ' คน'],
+    ['ห้องเรียน', cur.classroom_count + ' ห้อง'],
+    ['ครูที่มีจริง', cur.teacher_actual + ' คน'],
+    ['ผู้บริหารที่มีจริง', cur.director_actual + ' คน'],
+  ].map(([l,v]) => `<div class="info-item"><span class="info-label">${l}</span><span class="info-value">${v}</span></div>`).join('');
+  $('rpt-color').style.background = c.soft;
+  $('rpt-color').innerHTML = `<div style="font-family:Kanit,sans-serif;font-size:22px;font-weight:700;color:${c.bg}">${c.label}</div><div style="font-size:13px;color:${c.bg};margin-top:4px">${c.sub}</div>`;
+  $('rpt-checklist').innerHTML = $('ckBody').parentElement.innerHTML;
+  $('rpt-bars').innerHTML = $('bars').innerHTML;
+  $('rpt-reco').innerHTML = $('recoBox').innerHTML;
+  window.print();
+}
+$('exportBtn').addEventListener('click', exportPDF);
+
+function exportExcel(){
+  if(!allE.length){ alert('ยังไม่มีข้อมูล'); return; }
+  const headers = ['ชื่อโรงเรียน','รหัสโรงเรียน','อำเภอ','ประเภท','วันที่บันทึก','นักเรียน(คน)','ห้องเรียน','RT(%)','เกณฑ์RT','NT(%)','เกณฑ์NT','ONET(%)','เกณฑ์ONET','ผู้บริหารจริง','ครูจริง','ผู้บริหารที่ต้องการ','ครูที่ต้องการ','RTผ่าน','NTผ่าน','ONETผ่าน','บุคลากรครบ','กลุ่มสี','วันที่บันทึกข้อมูล'];
+  const rows = allE.map(e => [
+    e.school_name, e.school_code, e.district, e.school_type, e.data_date,
+    e.student_count, e.classroom_count,
+    e.rt_score, e.rt_standard, e.nt_score, e.nt_standard, e.onet_score, e.onet_standard,
+    e.director_actual, e.teacher_actual,
+    e.required_director, e.required_teacher,
+    e.rt_pass===true?'ผ่าน':e.rt_pass===false?'ไม่ผ่าน':'-',
+    e.nt_pass===true?'ผ่าน':e.nt_pass===false?'ไม่ผ่าน':'-',
+    e.onet_pass===true?'ผ่าน':e.onet_pass===false?'ไม่ผ่าน':'-',
+    e.staff_complete===true||e.staff_complete==='true'?'ครบ':'ไม่ครบ',
+    e.color_group,
+    e.savedAt ? new Date(e.savedAt).toLocaleDateString('th-TH') : '-'
+  ]);
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+  // Column widths
+  ws['!cols'] = [22,14,12,16,12,10,10,8,8,8,8,8,8,12,10,14,12,8,8,8,10,12,14].map(w=>({wch:w}));
+
+  // Header style (yellow background)
+  headers.forEach((_,i) => {
+    const cell = XLSX.utils.encode_cell({r:0, c:i});
+    if(!ws[cell]) return;
+    ws[cell].s = { fill:{fgColor:{rgb:'26303A'}}, font:{bold:true, color:{rgb:'FFFFFF'}}, alignment:{horizontal:'center'} };
+  });
+
+  // Color fill for color_group column (index 21)
+  const colorMap = {'ม่วง':'6B3FA0','ฟ้า':'2D6FAD','เขียว':'3D7A5C','เหลือง':'C49A00','แดง':'C84B3D'};
+  rows.forEach((row, ri) => {
+    const cg = row[21];
+    const hex = colorMap[cg];
+    if(!hex) return;
+    const cell = XLSX.utils.encode_cell({r:ri+1, c:21});
+    if(!ws[cell]) return;
+    ws[cell].s = { fill:{fgColor:{rgb:hex}}, font:{color:{rgb:'FFFFFF'}, bold:true} };
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'ประเมินกลุ่มสี');
+
+  // Summary sheet
+  const CKS = ['ม่วง','ฟ้า','เขียว','เหลือง','แดง','ไม่มีนักเรียน'];
+  const cnt = {}; CKS.forEach(k=>cnt[k]=0);
+  allE.forEach(e=>{ if(cnt[e.color_group]!==undefined) cnt[e.color_group]++; });
+  const sumRows = [['กลุ่มสี','จำนวนโรงเรียน','เปอร์เซ็นต์']];
+  CKS.forEach(k => sumRows.push([k, cnt[k], allE.length ? ((cnt[k]/allE.length)*100).toFixed(1)+'%' : '0%']));
+  sumRows.push(['รวมทั้งหมด', allE.length, '100%']);
+  const ws2 = XLSX.utils.aoa_to_sheet(sumRows);
+  ws2['!cols'] = [{wch:16},{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'สรุปภาพรวม');
+
+  const today = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `ประเมินกลุ่มสี_สพป.พล3_${today}.xlsx`);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = $('xlsxBtn');
+  if(btn) btn.addEventListener('click', exportExcel);
+});
+
 compute();loadEntries();
 </script>
 </body>
