@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ประเมินความเสี่ยงโรงเรียนขนาดเล็ก | สพป.พล.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F1E7;
+    --paper-line:#E3D9C4;
+    --ink:#26303A;
+    --ink-soft:#5B6470;
+    --red:#C84B3D;
+    --red-soft:#F5DCD7;
+    --amber:#D89B3A;
+    --amber-soft:#F6E7CC;
+    --green:#3D7A5C;
+    --green-soft:#D9E8DD;
+    --slate:#3E5C76;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Sarabun',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1040px;
+    margin:0 auto;
+    padding:36px 20px 80px;
+  }
+  header{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .eyebrow{
+    font-family:'Kanit',sans-serif;
+    font-size:12px;
+    letter-spacing:.14em;
+    color:var(--slate);
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Kanit',sans-serif;
+    font-weight:600;
+    font-size:clamp(24px,4vw,34px);
+    margin:0;
+    line-height:1.2;
+  }
+  .meta{
+    font-size:13px;
+    color:var(--ink-soft);
+    text-align:right;
+  }
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:24px;
+  }
+  .tab{
+    font-family:'Kanit',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding:8px 16px;
+    border-radius:20px;
+    border:1.5px solid var(--paper-line);
+    background:#fff;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tab.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fff;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+  }
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr;}
+  }
+  .panel{
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:26px 26px 28px;
+  }
+  .panel h2{
+    font-family:'Kanit',sans-serif;
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel h2 .num{
+    font-family:'Kanit',sans-serif;
+    font-size:12px;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--ink);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  label{
+    display:block;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .field{margin-bottom:18px;}
+  .field small{
+    display:block;
+    font-weight:400;
+    color:#8a8f96;
+    margin-top:4px;
+    font-size:12px;
+  }
+  input[type="text"], input[type="number"]{
+    width:100%;
+    padding:10px 12px;
+    font-family:'Sarabun',sans-serif;
+    font-size:15px;
+    border:1.5px solid var(--paper-line);
+    border-radius:4px;
+    background:#FCFAF5;
+    color:var(--ink);
+    transition:border-color .15s;
+  }
+  input:focus{
+    outline:none;
+    border-color:var(--slate);
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .derived{
+    font-size:13px;
+    color:var(--slate);
+    margin-top:-8px;
+    margin-bottom:18px;
+    font-weight:600;
+    min-height:18px;
+  }
+  .factor{
+    border-top:1px dashed var(--paper-line);
+    padding-top:16px;
+    margin-top:4px;
+  }
+  .factor:first-child{border-top:none;padding-top:0;margin-top:0;}
+  .factor-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .factor-title{
+    font-family:'Kanit',sans-serif;
+    font-size:14px;
+    font-weight:600;
+  }
+  .lights{display:flex;gap:6px;}
+  .light{
+    width:14px;height:14px;
+    border-radius:50%;
+    background:#E4E0D5;
+    border:1px solid #d8d3c4;
+  }
+  .light.on-red{background:var(--red);border-color:var(--red);}
+  .light.on-amber{background:var(--amber);border-color:var(--amber);}
+  .light.on-green{background:var(--green);border-color:var(--green);}
+  .factor-desc{
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.55;
+  }
+  .badge{
+    display:inline-block;
+    font-family:'Kanit',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    padding:2px 10px;
+    border-radius:20px;
+    margin-bottom:6px;
+  }
+  .badge.red{background:var(--red-soft);color:var(--red);}
+  .badge.amber{background:var(--amber-soft);color:#8a6118;}
+  .badge.green{background:var(--green-soft);color:var(--green);}
+  .overall{
+    margin-top:24px;
+    padding-top:22px;
+    border-top:2px solid var(--ink);
+  }
+  .overall-head{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:14px;
+  }
+  .dial{
+    width:64px;height:64px;
+    border-radius:50%;
+    flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Kanit',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:#fff;
+    transition:background .25s;
+    background:#bbb;
+  }
+  .dial.red{background:var(--red);}
+  .dial.amber{background:var(--amber);}
+  .dial.green{background:var(--green);}
+  .overall-title{
+    font-family:'Kanit',sans-serif;
+    font-size:18px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .overall-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .reco{
+    background:#FCFAF5;
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:14px 16px;
+    font-size:13.5px;
+    line-height:1.65;
+    color:var(--ink);
+  }
+  .reco b{font-family:'Kanit',sans-serif;}
+  .empty-state{
+    color:#9aa0a8;
+    font-size:13.5px;
+    text-align:center;
+    padding:30px 10px;
+    line-height:1.6;
+  }
+  .legend{
+    margin-top:28px;
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .legend i.red{background:var(--red);}
+  .legend i.amber{background:var(--amber);}
+  .legend i.green{background:var(--green);}
+
+  .save-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:18px;
+    gap:10px;
+    align-items:center;
+  }
+  .save-msg{
+    font-size:12.5px;
+    color:var(--green);
+    font-weight:600;
+  }
+  button.primary{
+    font-family:'Kanit',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    padding:10px 22px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  button.primary:disabled{
+    background:#c8c2b3;
+    cursor:not-allowed;
+  }
+  button.primary:hover:not(:disabled){background:var(--slate);}
+
+  /* Table view */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+  }
+  th{
+    font-family:'Kanit',sans-serif;
+    font-size:12px;
+    text-align:left;
+    color:var(--ink-soft);
+    border-bottom:2px solid var(--ink);
+    padding:8px 10px;
+  }
+  td{
+    padding:9px 10px;
+    border-bottom:1px solid var(--paper-line);
+    vertical-align:middle;
+  }
+  tr:hover td{background:#FCFAF5;}
+  .pill{
+    display:inline-block;
+    font-family:'Kanit',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    padding:2px 9px;
+    border-radius:14px;
+  }
+  .pill.red{background:var(--red-soft);color:var(--red);}
+  .pill.amber{background:var(--amber-soft);color:#8a6118;}
+  .pill.green{background:var(--green-soft);color:var(--green);}
+  .del-btn{
+    background:none;
+    border:none;
+    color:#b0a99a;
+    cursor:pointer;
+    font-size:12px;
+    text-decoration:underline;
+  }
+  .del-btn:hover{color:var(--red);}
+  .table-wrap{overflow-x:auto;}
+  .summary-bar{
+    display:flex;
+    gap:14px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .stat{
+    background:#FCFAF5;
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:12px 18px;
+    min-width:110px;
+  }
+  .stat .n{font-family:'Kanit',sans-serif;font-size:22px;font-weight:700;}
+  .stat .l{font-size:11.5px;color:var(--ink-soft);}
+
+  /* Overview dashboard */
+  .ov-grid{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:32px;
+    align-items:start;
+  }
+  @media (max-width:760px){ .ov-grid{grid-template-columns:1fr;} }
+  .donut-wrap{display:flex;flex-direction:column;align-items:center;}
+  .donut-center{
+    font-family:'Kanit',sans-serif;
+    font-size:13px;
+    text-anchor:middle;
+  }
+  .donut-legend{margin-top:14px;width:100%;}
+  .donut-legend .row{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    padding:5px 0;
+    border-bottom:1px solid var(--paper-line);
+  }
+  .donut-legend .row:last-child{border-bottom:none;}
+  .donut-legend .dot{
+    display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;
+  }
+  .ov-section-title{
+    font-family:'Kanit',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 12px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .bar-row{
+    display:grid;
+    grid-template-columns:170px 1fr 40px;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    font-size:13px;
+  }
+  .bar-track{
+    background:#EDE7D8;
+    border-radius:3px;
+    height:14px;
+    overflow:hidden;
+    display:flex;
+  }
+  .bar-seg{height:100%;}
+  .watchlist{margin-top:30px;}
+  .watch-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 14px;
+    background:#FCFAF5;
+    border:1px solid var(--paper-line);
+    border-left:4px solid var(--red);
+    border-radius:3px;
+    margin-bottom:8px;
+    font-size:13.5px;
+  }
+  .watch-item .nm{font-weight:600;}
+  .watch-item .det{color:var(--ink-soft);font-size:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">เครื่องมือประเมินเบื้องต้น · สพป. พิษณุโลก เขต 3</div>
+      <h1>ประเมินความเสี่ยงโรงเรียนขนาดเล็ก</h1>
+    </div>
+    <div class="meta">กรอกข้อมูล 3 ปัจจัยหลัก<br>ข้อมูลที่บันทึกจะเก็บไว้ถาวรและแชร์ร่วมกัน</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" id="tabForm">กรอก/ประเมิน</div>
+    <div class="tab" id="tabList">ข้อมูลที่บันทึกไว้ (<span id="countBadge">0</span>)</div>
+    <div class="tab" id="tabOverview">ภาพรวม</div>
+  </div>
+
+  <!-- FORM VIEW -->
+  <div id="viewForm" class="grid">
+    <div class="panel">
+      <h2><span class="num">1</span>ข้อมูลโรงเรียน</h2>
+
+      <div class="field">
+        <label for="schoolName">ชื่อโรงเรียน</label>
+        <input type="text" id="schoolName" placeholder="เช่น โรงเรียนบ้านหนองตาดำ">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="students">จำนวนนักเรียน (คน)</label>
+          <input type="number" id="students" min="0" placeholder="เช่น 65">
+        </div>
+        <div class="field">
+          <label for="teachers">จำนวนครู (คน)</label>
+          <input type="number" id="teachers" min="0" placeholder="เช่น 5">
+        </div>
+      </div>
+      <div class="derived" id="ratioOut"></div>
+
+      <div class="field">
+        <label for="onet">ผลสัมฤทธิ์ทางการเรียนเฉลี่ย (คะแนนเต็ม 100)
+          <small>ใช้คะแนนเฉลี่ย O-NET หรือผลสอบมาตรฐานอื่นของโรงเรียนในรอบล่าสุด</small>
+        </label>
+        <input type="number" id="onet" min="0" max="100" step="0.1" placeholder="เช่น 38.5">
+      </div>
+
+      <div class="legend">
+        <span><i class="red"></i>เสี่ยงสูง</span>
+        <span><i class="amber"></i>เฝ้าระวัง</span>
+        <span><i class="green"></i>ปกติ</span>
+      </div>
+    </div>
+
+    <div class="panel" id="resultPanel">
+      <h2><span class="num">2</span>ผลการประเมิน</h2>
+      <div id="resultBody">
+        <div class="empty-state">กรอกข้อมูลด้านซ้ายให้ครบทั้ง 3 ช่อง<br>ผลการประเมินจะปรากฏที่นี่โดยอัตโนมัติ</div>
+      </div>
+      <div class="save-row">
+        <span class="save-msg" id="saveMsg"></span>
+        <button class="primary" id="saveBtn" disabled>บันทึกข้อมูลนี้</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div id="viewList" class="panel" style="display:none;">
+    <h2><span class="num">≡</span>โรงเรียนที่บันทึกไว้ทั้งหมด</h2>
+    <div class="summary-bar" id="summaryBar"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>โรงเรียน</th>
+            <th>นักเรียน</th>
+            <th>ครู</th>
+            <th>อัตราส่วน</th>
+            <th>O-NET</th>
+            <th>ความเสี่ยงรวม</th>
+            <th>บันทึกเมื่อ</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="entriesBody"></tbody>
+      </table>
+    </div>
+    <div id="listEmpty" class="empty-state" style="display:none;">ยังไม่มีข้อมูลที่บันทึกไว้</div>
+  </div>
+
+  <!-- OVERVIEW VIEW -->
+  <div id="viewOverview" class="panel" style="display:none;">
+    <h2><span class="num">◎</span>ภาพรวมความเสี่ยงทั้งเขต</h2>
+    <div id="overviewBody"></div>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const LEVEL = {
+  1: {key:'red',    label:'เสี่ยงสูง',   badge:'red'},
+  2: {key:'amber',  label:'เฝ้าระวัง',   badge:'amber'},
+  3: {key:'green',  label:'ปกติ',        badge:'green'}
+};
+
+function ratioStatus(students, teachers){
+  if(teachers <= 0) return {level:1, ratioText:'คำนวณไม่ได้'};
+  const ratio = students / teachers;
+  let level;
+  if(ratio > 25) level = 1;
+  else if(ratio >= 15) level = 2;
+  else level = 3;
+  return {level, ratio, ratioText: `1 : ${ratio.toFixed(1)}`};
+}
+function studentStatus(students){
+  if(students <= 40) return 1;
+  if(students <= 80) return 2;
+  return 3;
+}
+function onetStatus(score){
+  if(score < 30) return 1;
+  if(score <= 50) return 2;
+  return 3;
+}
+function overallFrom(sLevel, rLevel, oLevel){
+  const avg = (sLevel + rLevel + oLevel) / 3;
+  let level;
+  if(avg <= 1.5) level = 1;
+  else if(avg < 2.5) level = 2;
+  else level = 3;
+  return {level, avg};
+}
+
+function lights(level){
+  return [1,2,3].map(l => {
+    const cls = l === level ? 'on-' + LEVEL[l].key : '';
+    return `<span class="light ${cls}"></span>`;
+  }).join('');
+}
+function factorBlock(title, level, descHtml){
+  const meta = LEVEL[level];
+  return `
+    <div class="factor">
+      <div class="factor-head">
+        <div class="factor-title">${title}</div>
+        <div class="lights">${lights(level)}</div>
+      </div>
+      <span class="badge ${meta.badge}">${meta.label}</span>
+      <div class="factor-desc">${descHtml}</div>
+    </div>`;
+}
+function overallRecommendation(level){
+  if(level === 1) return `<b>ควรเร่งดำเนินการ:</b> เสนอข้อมูลต่อ สพป.พล.3 เพื่อพิจารณาแนวทางช่วยเหลือเร่งด่วน เช่น สนับสนุนอัตรากำลังครู จัดทำแผนพัฒนาคุณภาพเฉพาะทาง หรือพิจารณาแนวทางควบรวม/เครือข่ายโรงเรียนตามความเหมาะสม`;
+  if(level === 2) return `<b>ควรเฝ้าระวัง:</b> ติดตามแนวโน้มจำนวนนักเรียน อัตราส่วนครู และผลสัมฤทธิ์อย่างต่อเนื่องทุกภาคเรียน พร้อมวางแผนพัฒนาในจุดที่เป็นสัญญาณเหลืองก่อนกลายเป็นความเสี่ยงสูง`;
+  return `<b>สถานะปกติ:</b> โรงเรียนอยู่ในเกณฑ์ที่ยอมรับได้ ควรรักษามาตรฐานปัจจุบันและติดตามผลรายปีตามรอบปกติ`;
+}
+
+let currentResult = null;
+
+function render(){
+  const studentsRaw = $('students').value;
+  const teachersRaw = $('teachers').value;
+  const onetRaw = $('onet').value;
+  const students = parseFloat(studentsRaw);
+  const teachers = parseFloat(teachersRaw);
+  const onet = parseFloat(onetRaw);
+
+  $('ratioOut').textContent = (!isNaN(students) && !isNaN(teachers) && teachers > 0)
+    ? `อัตราส่วนครู : นักเรียน ≈ 1 : ${(students/teachers).toFixed(1)}`
+    : '';
+
+  const ready = studentsRaw !== '' && teachersRaw !== '' && onetRaw !== '' && !isNaN(students) && !isNaN(teachers) && !isNaN(onet);
+
+  if(!ready){
+    $('resultBody').innerHTML = `<div class="empty-state">กรอกข้อมูลด้านซ้ายให้ครบทั้ง 3 ช่อง<br>ผลการประเมินจะปรากฏที่นี่โดยอัตโนมัติ</div>`;
+    $('saveBtn').disabled = true;
+    currentResult = null;
+    return;
+  }
+
+  const sLevel = studentStatus(students);
+  const r = ratioStatus(students, teachers);
+  const oLevel = onetStatus(onet);
+  const overall = overallFrom(sLevel, r.level, oLevel);
+  const overallMeta = LEVEL[overall.level];
+  const name = $('schoolName').value.trim();
+
+  currentResult = {
+    name: name || '(ไม่ระบุชื่อ)',
+    students, teachers, onet,
+    ratioText: r.ratioText,
+    sLevel, rLevel: r.level, oLevel,
+    overallLevel: overall.level
+  };
+
+  let html = '';
+  html += factorBlock('ขนาดโรงเรียน (จำนวนนักเรียน)', sLevel,
+    `นักเรียนทั้งหมด ${students} คน &nbsp;·&nbsp; เกณฑ์: ≤40 คน = เสี่ยงสูง, 41–80 คน = เฝ้าระวัง, มากกว่า 80 คน = ปกติ`);
+  html += factorBlock('อัตราส่วนครู : นักเรียน', r.level,
+    teachers > 0
+      ? `อัตราส่วน ${r.ratioText} (ครู ${teachers} คน) &nbsp;·&nbsp; เกณฑ์: มากกว่า 1:25 = เสี่ยงสูง, 1:15–1:25 = เฝ้าระวัง, น้อยกว่า 1:15 = ปกติ`
+      : `ไม่สามารถคำนวณอัตราส่วนได้เนื่องจากจำนวนครูเป็น 0`);
+  html += factorBlock('ผลสัมฤทธิ์ทางการเรียนเฉลี่ย', oLevel,
+    `คะแนนเฉลี่ย ${onet.toFixed(1)} จาก 100 &nbsp;·&nbsp; เกณฑ์: ต่ำกว่า 30 = เสี่ยงสูง, 30–50 = เฝ้าระวัง, มากกว่า 50 = ปกติ`);
+
+  html += `
+    <div class="overall">
+      <div class="overall-head">
+        <div class="dial ${overallMeta.key}">${overallMeta.label.slice(0,4)}</div>
+        <div>
+          <p class="overall-title">${name ? name : 'โรงเรียนนี้'} — ระดับความเสี่ยงโดยรวม: ${overallMeta.label}</p>
+          <p class="overall-sub">สรุปจาก 3 ปัจจัย (คะแนนเฉลี่ย ${overall.avg.toFixed(2)} จาก 3.00)</p>
+        </div>
+      </div>
+      <div class="reco">${overallRecommendation(overall.level)}</div>
+    </div>`;
+
+  $('resultBody').innerHTML = html;
+  $('saveBtn').disabled = false;
+}
+
+['students','teachers','onet','schoolName'].forEach(id => $(id).addEventListener('input', render));
+
+// ---- Storage / persistence (Google Sheets via Apps Script) ----
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxOHZR-C_dBIs6umgayCgsFLU4RpmoUYwjeiZUS4OLmaViQNm_ZDAQLcJU1KJcFXIh_cw/exec';
+
+async function saveEntry(){
+  if(!currentResult) return;
+  $('saveBtn').disabled = true;
+  $('saveMsg').textContent = 'กำลังบันทึก...';
+  try{
+    const params = new URLSearchParams({
+      action: 'add',
+      name: currentResult.name,
+      students: currentResult.students,
+      teachers: currentResult.teachers,
+      onet: currentResult.onet,
+      ratioText: currentResult.ratioText,
+      sLevel: currentResult.sLevel,
+      rLevel: currentResult.rLevel,
+      oLevel: currentResult.oLevel,
+      overallLevel: currentResult.overallLevel
+    });
+    const res = await fetch(GAS_URL + '?' + params.toString());
+    const json = await res.json();
+    if(!json || !json.ok) throw new Error('save failed');
+    $('saveMsg').textContent = 'บันทึกแล้ว ✓';
+    setTimeout(()=>{ $('saveMsg').textContent=''; }, 2500);
+    await loadEntries();
+  }catch(e){
+    $('saveMsg').textContent = 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง';
+  }finally{
+    $('saveBtn').disabled = !currentResult;
+  }
+}
+$('saveBtn').addEventListener('click', saveEntry);
+
+async function loadEntries(){
+  let rows = [];
+  try{
+    const res = await fetch(GAS_URL + '?action=list');
+    const json = await res.json();
+    rows = (json && json.ok && json.entries) ? json.entries : [];
+  }catch(e){ rows = []; }
+
+  const entries = rows.map(r => ({
+    key: r.id,
+    data: {
+      name: r.name,
+      students: Number(r.students),
+      teachers: Number(r.teachers),
+      onet: Number(r.onet),
+      ratioText: r.ratioText,
+      sLevel: Number(r.sLevel),
+      rLevel: Number(r.rLevel),
+      oLevel: Number(r.oLevel),
+      overallLevel: Number(r.overallLevel),
+      savedAt: r.savedAt
+    }
+  }));
+  entries.sort((a,b) => new Date(b.data.savedAt) - new Date(a.data.savedAt));
+
+  $('countBadge').textContent = entries.length;
+
+  const counts = {1:0,2:0,3:0};
+  entries.forEach(e => counts[e.data.overallLevel]++);
+  $('summaryBar').innerHTML = `
+    <div class="stat"><div class="n">${entries.length}</div><div class="l">โรงเรียนทั้งหมด</div></div>
+    <div class="stat"><div class="n" style="color:var(--red)">${counts[1]}</div><div class="l">เสี่ยงสูง</div></div>
+    <div class="stat"><div class="n" style="color:#8a6118">${counts[2]}</div><div class="l">เฝ้าระวัง</div></div>
+    <div class="stat"><div class="n" style="color:var(--green)">${counts[3]}</div><div class="l">ปกติ</div></div>
+  `;
+
+  if(entries.length === 0){
+    $('entriesBody').innerHTML = '';
+    $('listEmpty').style.display = 'block';
+    return;
+  }
+  $('listEmpty').style.display = 'none';
+
+  $('entriesBody').innerHTML = entries.map(e => {
+    const d = e.data;
+    const meta = LEVEL[d.overallLevel];
+    const dt = new Date(d.savedAt);
+    const dtStr = dt.toLocaleDateString('th-TH', {day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    return `
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.students}</td>
+        <td>${d.teachers}</td>
+        <td>${d.ratioText}</td>
+        <td>${d.onet.toFixed(1)}</td>
+        <td><span class="pill ${meta.badge}">${meta.label}</span></td>
+        <td>${dtStr}</td>
+        <td><button class="del-btn" data-key="${e.key}">ลบ</button></td>
+      </tr>`;
+  }).join('');
+
+  document.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const key = btn.getAttribute('data-key');
+      btn.textContent = '...';
+      try{
+        const res = await fetch(GAS_URL + '?action=delete&id=' + encodeURIComponent(key));
+        const json = await res.json();
+        if(!json || !json.ok) throw new Error('delete failed');
+        await loadEntries();
+      }catch(e){ btn.textContent = 'ลบไม่สำเร็จ'; }
+    });
+  });
+
+  renderOverview(entries);
+}
+
+const COLORVAR = {1:'var(--red)', 2:'var(--amber)', 3:'var(--green)'};
+const COLORHEX = {1:'#C84B3D', 2:'#D89B3A', 3:'#3D7A5C'};
+
+function donutSVG(counts, total){
+  const r = 70, cx = 90, cy = 90, sw = 24;
+  const circ = 2 * Math.PI * r;
+  let offset = 0;
+  let segs = '';
+  [1,2,3].forEach(level => {
+    const n = counts[level];
+    if(n === 0) return;
+    const frac = n / total;
+    const len = frac * circ;
+    segs += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${COLORHEX[level]}"
+      stroke-width="${sw}" stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-offset}"
+      transform="rotate(-90 ${cx} ${cy})" />`;
+    offset += len;
+  });
+  return `
+  <svg width="180" height="180" viewBox="0 0 180 180">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#EDE7D8" stroke-width="${sw}" />
+    ${segs}
+    <text x="${cx}" y="${cy-4}" class="donut-center" text-anchor="middle" font-weight="700" font-size="26">${total}</text>
+    <text x="${cx}" y="${cy+16}" class="donut-center" text-anchor="middle" fill="#5B6470" font-size="11">โรงเรียน</text>
+  </svg>`;
+}
+
+function renderOverview(entries){
+  const el = $('overviewBody');
+  if(!entries || entries.length === 0){
+    el.innerHTML = `<div class="empty-state">ยังไม่มีข้อมูลให้สรุปภาพรวม กรอกและบันทึกข้อมูลโรงเรียนก่อน</div>`;
+    return;
+  }
+
+  const total = entries.length;
+  const counts = {1:0,2:0,3:0};
+  entries.forEach(e => counts[e.data.overallLevel]++);
+
+  // average factor levels -> convert to % in each color band per factor
+  const factorCounts = {
+    student: {1:0,2:0,3:0},
+    ratio:   {1:0,2:0,3:0},
+    onet:    {1:0,2:0,3:0}
+  };
+  entries.forEach(e => {
+    factorCounts.student[e.data.sLevel]++;
+    factorCounts.ratio[e.data.rLevel]++;
+    factorCounts.onet[e.data.oLevel]++;
+  });
+
+  function barRow(label, fc){
+    const segs = [1,2,3].map(l => {
+      const pct = (fc[l] / total) * 100;
+      return pct > 0 ? `<div class="bar-seg" style="width:${pct}%;background:${COLORVAR[l]}"></div>` : '';
+    }).join('');
+    return `
+      <div class="bar-row">
+        <div>${label}</div>
+        <div class="bar-track">${segs}</div>
+        <div style="text-align:right;color:var(--ink-soft)">${total}</div>
+      </div>`;
+  }
+
+  const watch = entries
+    .filter(e => e.data.overallLevel === 1)
+    .sort((a,b) => (a.data.students - b.data.students))
+    .slice(0, 8);
+
+  const legendRows = [1,2,3].map(l => `
+    <div class="row">
+      <span><span class="dot" style="background:${COLORHEX[l]}"></span>${LEVEL[l].label}</span>
+      <span>${counts[l]} โรง (${((counts[l]/total)*100).toFixed(0)}%)</span>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div class="ov-grid">
+      <div>
+        <div class="ov-section-title">สัดส่วนความเสี่ยงรวม</div>
+        <div class="donut-wrap">
+          ${donutSVG(counts, total)}
+          <div class="donut-legend">${legendRows}</div>
+        </div>
+      </div>
+      <div>
+        <div class="ov-section-title">สัดส่วนแยกตามปัจจัย</div>
+        ${barRow('ขนาดโรงเรียน', factorCounts.student)}
+        ${barRow('อัตราส่วนครู:นักเรียน', factorCounts.ratio)}
+        ${barRow('ผลสัมฤทธิ์ทางการเรียน', factorCounts.onet)}
+
+        <div class="watchlist">
+          <div class="ov-section-title">${watch.length ? 'โรงเรียนเสี่ยงสูงที่ควรจับตา (' + counts[1] + ' โรง)' : 'ไม่มีโรงเรียนในระดับเสี่ยงสูงขณะนี้'}</div>
+          ${watch.map(e => `
+            <div class="watch-item">
+              <span class="nm">${e.data.name}</span>
+              <span class="det">นักเรียน ${e.data.students} คน · ครู ${e.data.teachers} คน · O-NET ${e.data.onet.toFixed(1)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ---- Tabs ----
+function setActiveTab(tabEl){
+  [$('tabForm'), $('tabList'), $('tabOverview')].forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+}
+$('tabForm').addEventListener('click', () => {
+  setActiveTab($('tabForm'));
+  $('viewForm').style.display = 'grid';
+  $('viewList').style.display = 'none';
+  $('viewOverview').style.display = 'none';
+});
+$('tabList').addEventListener('click', () => {
+  setActiveTab($('tabList'));
+  $('viewForm').style.display = 'none';
+  $('viewList').style.display = 'block';
+  $('viewOverview').style.display = 'none';
+  loadEntries();
+});
+$('tabOverview').addEventListener('click', () => {
+  setActiveTab($('tabOverview'));
+  $('viewForm').style.display = 'none';
+  $('viewList').style.display = 'none';
+  $('viewOverview').style.display = 'block';
+  loadEntries();
+});
+
+render();
+loadEntries();
+</script>
+</body>
+</html>
